@@ -1,0 +1,15 @@
+<!-- @dsCard group="Components" viewport="700x330" name="Entry" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<script src="../../_ds/loader.js"></script>
+<style>body{padding:20px}.l{font:500 11px ui-monospace,monospace;color:var(--text-subtle);margin-bottom:6px}</style></head><body><div id="root"></div>
+<script type="text/babel">
+AuxideReady.then(function(ns){const {Keypad,AmountInput}=ns;
+const Row=({label,children,gap=10})=><div style={{marginBottom:16}}><div className="l">{label}</div><div style={{display:'flex',flexWrap:'wrap',gap,alignItems:'center'}}>{children}</div></div>;
+function Demo(){
+const [v,setV]=React.useState('34');
+return <div style={{display:'grid',gridTemplateColumns:'1fr 320px',gap:16,alignItems:'center'}}><AmountInput value={v} focused/><div style={{borderRadius:22,overflow:'hidden'}}><Keypad onKey={k=>setV(s=>{s=s||'';if(k==='⌫')return s.slice(0,-1);if(k==='.')return s.includes('.')?s:(s||'0')+'.';if(s.includes('.')&&s.split('.')[1].length>=2)return s;if(s==='0')return k;return s.length>=8?s:s+k;})}/></div></div>;}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);});
+</script></body></html>

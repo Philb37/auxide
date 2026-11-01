@@ -1,0 +1,21 @@
+:root{
+  /* Shadows — brown-tinted, very soft */
+  --shadow-card:0 1px 3px rgba(60,40,20,.06);
+  --shadow-raised:0 1px 3px rgba(60,40,20,.08);   /* chips, round buttons */
+  --shadow-seg:0 1px 3px rgba(60,40,20,.1);        /* active segment */
+  --shadow-key:0 1px 2px rgba(60,40,20,.08);
+  --shadow-knob:0 1px 2px rgba(0,0,0,.15);
+  --shadow-accent:0 10px 20px -10px oklch(0.6 0.15 40);
+  --shadow-fab:0 10px 20px -8px oklch(0.6 0.15 40);
+  --shadow-sheet:0 -10px 30px -10px rgba(42,36,32,.3);
+  --shadow-keypad:0 -6px 20px -10px rgba(60,40,20,.25);
+  --shadow-toast:0 12px 30px -10px rgba(42,36,32,.5);
+  --ring-selected:inset 0 0 0 2.5px var(--ax-accent),0 10px 24px -14px rgba(60,40,20,.3);
+  --ring-input:inset 0 0 0 2px var(--ax-accent);
+  --ring-inset:inset 0 0 0 1.5px var(--ax-cream-400);
+
+  /* Motion */
+  --ease-sheet:cubic-bezier(.2,.8,.2,1);
+  --dur-sheet:.3s; --dur-fade:.25s; --dur-close:280ms; --toast-ms:4500ms;
+  --blur-nav:12px;
+}

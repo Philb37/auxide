@@ -1,0 +1,24 @@
+<!-- @dsCard group="Components" viewport="700x620" name="Display" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<script src="../../_ds/loader.js"></script>
+<style>body{padding:20px}.l{font:500 11px ui-monospace,monospace;color:var(--text-subtle);margin-bottom:6px}</style></head><body><div id="root"></div>
+<script type="text/babel">
+AuxideReady.then(function(ns){const {Icon,CategoryTile,Avatar,AvatarStack,Badge,StatusChip,ProgressBar,StripBar,Card,HeroCard}=ns;
+const Row=({label,children,gap=10})=><div style={{marginBottom:16}}><div className="l">{label}</div><div style={{display:'flex',flexWrap:'wrap',gap,alignItems:'center'}}>{children}</div></div>;
+function Demo(){
+const H=[40,145,215,265,300,340,90,180];
+return <div>
+<Row label="Icon · back / next / plus / close / check / more">{["back","next","plus","close","check","more"].map(n=><span key={n} style={{width:36,height:36,borderRadius:12,background:"var(--surface-inset)",color:"var(--text-secondary)",display:"flex",alignItems:"center",justifyContent:"center"}}><Icon name={n} size={18}/></span>)}</Row>
+<Row label="CategoryTile · sm / md / lg / xl · white · muted">{['sm','md','lg','xl'].map((s,i)=><CategoryTile key={s} hue={H[i+1]} label="Groceries" size={s}/>)}<CategoryTile variant="white" label="Everyday" size="xl"/><CategoryTile variant="muted" label="Ski" size="lg"/></Row>
+<Row label="Avatar · me · AvatarStack"><Avatar name="Maya" me size="xl"/><Avatar name="Léa" hue={40}/><Avatar name="Tom" hue={300} size="lg"/><AvatarStack members={[{name:'Léa',hue:40},{name:'Tom',hue:300},{name:'You',hue:215}]}/></Row>
+<Row label="Badge · neutral / positive / negative / settled / hue / numeric"><Badge>Mandatory</Badge><Badge>Recurring</Badge><Badge tone="positive" size="md">€738 left</Badge><Badge tone="negative" size="md">€42 over</Badge><Badge tone="settled" size="md">Shared · Synced</Badge><Badge hue={145} size="md">Groceries</Badge><Badge tone="positive" size="md" numeric>+€120</Badge><Badge tone="negative" size="md" numeric>−€64</Badge></Row>
+<Row label="StatusChip · pill / inline"><StatusChip synced/><StatusChip/><StatusChip variant="inline" synced label="Synced on 3 devices"/></Row>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+<HeroCard label="Spent so far" amount="€1,642" suffix="of €2,380" aside="Income €3,650"><StripBar segments={[{value:950,color:'oklch(0.78 0.11 265)'},{value:312,color:'oklch(0.78 0.11 145)'},{value:124,color:'oklch(0.78 0.11 215)'},{value:230,color:'oklch(0.78 0.11 35)'}]}/><div style={{display:'flex',gap:6,flexWrap:'wrap'}}><Badge tone="white" size="md">Mandatory €1,398</Badge><Badge tone="white" size="md">Flexible €244</Badge><Badge tone="positive" size="md">€738 left</Badge></div></HeroCard>
+<div style={{display:'flex',flexDirection:'column',gap:12}}><Card><span style={{font:'var(--type-card-title)'}}>By category</span><ProgressBar value={0.7} color="oklch(0.78 0.11 145)"/><ProgressBar value={1} over/></Card><Card variant="positive" radius={30} padding={18}><span style={{font:'var(--type-card-title)',color:'var(--ax-pos-ink)'}}>Settle up</span><span style={{font:'500 14px var(--font-ui)',color:'oklch(0.35 0.07 150)'}}>Everyone is settled up.</span></Card></div>
+</div></div>;}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);});
+</script></body></html>

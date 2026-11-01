@@ -1,0 +1,98 @@
+:root{
+  /* Neutrals — warm, sampled from the prototype */
+  --ax-white:#ffffff;
+  --ax-cream-50:#fbf7f1;   /* app background */
+  --ax-cream-100:#f7f2eb;  /* window chrome */
+  --ax-cream-150:#f6f0e8;  /* inset fields, round steppers */
+  --ax-cream-200:#f4eee6;  /* sidebar, badges, progress tracks, hairlines */
+  --ax-cream-250:#f1ebe3;  /* segmented track, keypad, secondary button */
+  --ax-cream-300:#efe9e1;  /* page canvas */
+  --ax-cream-350:#efe7dc;  /* borders */
+  --ax-cream-400:#e6ddd1;  /* strong border, inset ring */
+  --ax-cream-450:#e2d6c8;  /* disabled fill, toggle off */
+  --ax-cream-500:#ddd2c4;  /* grabber, dashed tile */
+  --ax-cream-550:#d6cabb;  /* dashed chip, radio off */
+  --ax-stone-400:#b3a798;  /* placeholder, € prefix, arrows */
+  --ax-stone-500:#9a8f84;  /* overline, ▾, version */
+  --ax-stone-600:#8a7f74;  /* field labels, helper */
+  --ax-stone-700:#786e64;  /* muted text */
+  --ax-stone-800:#5a5048;  /* secondary text */
+  --ax-ink:#2a2420;        /* primary text, dark chips, toast */
+
+  /* Accent — terracotta, hue 40 */
+  --ax-accent:oklch(0.7 0.15 40);
+  --ax-accent-glow:oklch(0.6 0.15 40);
+  --ax-accent-text:oklch(0.55 0.14 40);
+  --ax-accent-strong:oklch(0.5 0.14 40);
+  --ax-accent-soft:oklch(0.9 0.07 45);    /* hero cards */
+  --ax-accent-tile:oklch(0.88 0.08 40);   /* user avatar */
+  --ax-accent-ink:oklch(0.3 0.07 40);     /* big numbers on soft */
+  --ax-accent-ink-2:oklch(0.38 0.08 40);  /* labels on soft */
+  --ax-accent-ink-3:oklch(0.42 0.1 40);   /* initials on tile */
+  --ax-accent-on-dark:oklch(0.82 0.12 50);/* Undo on toast */
+
+  /* Brand — Au (gold) + oxide (rust), logo only */
+  --ax-gold:oklch(0.82 0.13 85);          /* coin face */
+  --ax-gold-ink:oklch(0.36 0.07 70);      /* "Au" on the coin */
+  --ax-gold-text:oklch(0.5 0.1 75);       /* "Au" in the wordmark on light */
+  --ax-rust:oklch(0.58 0.15 40);          /* crescent and dot */
+  --ax-rust-on-dark:oklch(0.68 0.15 40);
+  /* Brand variants — same hues, app-style tint / soft / mid / deep / ink steps */
+  --ax-gold-tint:oklch(0.95 0.04 85);     /* fills, banners */
+  --ax-gold-soft:oklch(0.9 0.08 85);      /* hero-style cards */
+  --ax-gold-mid:oklch(0.72 0.13 78);      /* bars, rings, coin rim */
+  --ax-rust-tint:oklch(0.94 0.035 40);
+  --ax-rust-soft:oklch(0.86 0.07 40);
+  --ax-rust-deep:oklch(0.46 0.13 38);     /* text on rust tint */
+  --ax-rust-ink:oklch(0.32 0.08 38);      /* big numbers on rust soft */
+
+  /* Positive — green, hue 150 */
+  --ax-pos:oklch(0.65 0.14 150);          /* sync dot */
+  --ax-pos-text:oklch(0.45 0.1 150);
+  --ax-pos-income:oklch(0.42 0.11 150);
+  --ax-pos-soft:oklch(0.93 0.05 150);     /* settle card */
+  --ax-pos-chip:oklch(0.92 0.07 150);     /* "left" chip */
+  --ax-pos-banner:oklch(0.94 0.045 150);  /* auto-categorised */
+  --ax-pos-ink:oklch(0.3 0.07 150);
+  --ax-pos-ink-2:oklch(0.38 0.09 150);
+
+  /* Negative — red, hue 30 */
+  --ax-neg:oklch(0.6 0.17 30);            /* destructive confirm */
+  --ax-neg-bar:oklch(0.68 0.16 32);       /* over-budget bar */
+  --ax-neg-text:oklch(0.52 0.17 32);      /* over-budget amount, split error */
+  --ax-neg-soft:oklch(0.94 0.04 30);      /* delete button */
+  --ax-neg-chip:oklch(0.93 0.05 30);      /* "over" chip */
+  --ax-neg-ink:oklch(0.5 0.16 30);
+  --ax-neg-ink-2:oklch(0.48 0.15 30);
+
+  /* Category hues — each category/pocket/member stores one hue */
+  --ax-hue-1:40; --ax-hue-2:145; --ax-hue-3:215; --ax-hue-4:265;
+  --ax-hue-5:300; --ax-hue-6:340; --ax-hue-7:90;  --ax-hue-8:180;
+
+  /* Semantic aliases */
+  --surface-canvas:var(--ax-cream-300);
+  --surface-app:var(--ax-cream-50);
+  --surface-card:var(--ax-white);
+  --surface-sunken:var(--ax-cream-200);
+  --surface-track:var(--ax-cream-250);
+  --surface-inset:var(--ax-cream-150);
+  --surface-hero:var(--ax-accent-soft);
+  --surface-inverse:var(--ax-ink);
+  --text-primary:var(--ax-ink);
+  --text-secondary:var(--ax-stone-800);
+  --text-muted:var(--ax-stone-700);
+  --text-label:var(--ax-stone-600);
+  --text-subtle:var(--ax-stone-500);
+  --text-placeholder:var(--ax-stone-400);
+  --text-link:var(--ax-accent-text);
+  --text-on-accent:var(--ax-white);
+  --text-income:var(--ax-pos-income);
+  --text-over:var(--ax-neg-text);
+  --border-hairline:var(--ax-cream-200);
+  --border-default:var(--ax-cream-350);
+  --border-strong:var(--ax-cream-400);
+  --border-dashed:var(--ax-cream-550);
+  --fill-disabled:var(--ax-cream-450);
+  --fill-toggle-off:var(--ax-cream-450);
+  --scrim:rgba(42,36,32,.42);
+}

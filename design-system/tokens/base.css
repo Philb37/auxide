@@ -1,0 +1,6 @@
+body{margin:0;background:var(--surface-app);font-family:var(--font-ui);color:var(--text-primary)}
+*{box-sizing:border-box}
+input,select,button{font-family:inherit}
+input::placeholder{color:var(--text-placeholder)}
+a{color:var(--text-link);text-decoration:none}
+a:hover{text-decoration:underline}

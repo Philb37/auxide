@@ -1,0 +1,26 @@
+<!-- @dsCard group="Components" viewport="700x440" name="Lists" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<script src="../../_ds/loader.js"></script>
+<style>body{padding:20px}.l{font:500 11px ui-monospace,monospace;color:var(--text-subtle);margin-bottom:6px}</style></head><body><div id="root"></div>
+<script type="text/babel">
+AuxideReady.then(function(ns){const {ListRow,SettingsList,ToggleRow,CategoryTile,Badge,ProgressBar}=ns;
+const Row=({label,children,gap=10})=><div style={{marginBottom:16}}><div className="l">{label}</div><div style={{display:'flex',flexWrap:'wrap',gap,alignItems:'center'}}>{children}</div></div>;
+function Demo(){
+const [a,setA]=React.useState(true);
+return <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,alignItems:'start'}}>
+<div style={{display:'flex',flexDirection:'column',gap:8}}><div className="l">Entry rows</div>
+<ListRow leading={<CategoryTile hue={145} label="G" size="md"/>} title="Monoprix" meta="Groceries" amount="€46"/>
+<ListRow leading={<CategoryTile hue={35} label="R" size="md"/>} title="Dinner at Time Out" meta="Restaurants · paid by You" amount="€96"/>
+<ListRow leading={<CategoryTile hue={120} label="F" size="md"/>} title="Logo for Studio Nord" meta="Freelance" amount="+€450" amountColor="var(--text-income)"/>
+<div className="l" style={{marginTop:8}}>Category row</div>
+<ListRow padding="14px" radius={22} leading={<CategoryTile hue={145} label="G"/>} title="Groceries" badges={<Badge>Mandatory</Badge>} amount="€312"><div style={{display:'flex',alignItems:'center',gap:8}}><ProgressBar value={0.69} color="oklch(0.78 0.11 145)"/><span style={{font:'500 12px var(--font-ui)',color:'var(--text-label)'}}>€450</span></div></ListRow>
+<ListRow padding="14px" radius={22} leading={<CategoryTile hue={35} label="R"/>} title="Restaurants" amount="€230" amountColor="var(--text-over)"><div style={{display:'flex',alignItems:'center',gap:8}}><ProgressBar value={1} over/><span style={{font:'500 12px var(--font-ui)',color:'var(--text-label)'}}>€150</span></div></ListRow>
+</div>
+<div style={{display:'flex',flexDirection:'column',gap:10}}><div className="l">SettingsList</div><SettingsList rows={[{label:'Currency',value:'EUR €'},{label:'Week starts on',value:'Monday'},{label:'Default pocket',value:'Everyday'}]}/>
+<div className="l">ToggleRow group</div><div style={{background:'#fff',borderRadius:22,padding:'2px 16px',boxShadow:'var(--shadow-card)'}}><ToggleRow label="Mandatory" sub="Needs, not wants" checked={a} onChange={setA}/><ToggleRow divider label="Also count in Everyday" sub="Your share · €32" checked/></div></div>
+</div>;}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);});
+</script></body></html>

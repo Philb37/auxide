@@ -1,0 +1,23 @@
+<!-- @dsCard group="Components" viewport="700x520" name="Controls" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<script src="../../_ds/loader.js"></script>
+<style>body{padding:20px}.l{font:500 11px ui-monospace,monospace;color:var(--text-subtle);margin-bottom:6px}</style></head><body><div id="root"></div>
+<script type="text/babel">
+AuxideReady.then(function(ns){const {Button,IconButton,SegmentedControl,Toggle,Chip,ChipGroup}=ns;
+const Row=({label,children,gap=10})=><div style={{marginBottom:16}}><div className="l">{label}</div><div style={{display:'flex',flexWrap:'wrap',gap,alignItems:'center'}}>{children}</div></div>;
+function Demo(){
+const [p,setP]=React.useState('month');const [m,setM]=React.useState('fair');const [t,setT]=React.useState(true);const [c,setC]=React.useState('groc');
+const cats=[['rent','Rent',265],['groc','Groceries',145],['trans','Transport',215],['util','Utilities',90],['rest','Restaurants',35],['act','Activities',340],['hol','Holidays',300],['subs','Subscriptions',180]];
+return <div>
+<Row label="Button · primary xl / soft / secondary / white / dangerSoft / danger / disabled / link"><Button size="xl">Continue</Button><Button variant="soft" size="sm" icon="plus" style={{height:44,borderRadius:16}}>New pocket</Button><Button variant="secondary" size="lg">Cancel</Button><Button variant="white" size="md">Continue with Apple</Button><Button variant="dangerSoft" size="sm">Delete</Button><Button variant="danger" size="lg">Delete</Button><Button size="sm" disabled>Save</Button><Button variant="link">Log in</Button></Row>
+<Row label="IconButton · round / menu / step / square / ghost"><IconButton icon="back" label="Back"/><IconButton icon="more" variant="menu" label="Menu"/><IconButton icon="back" variant="step" label="Previous"/><IconButton icon="next" variant="step" label="Next"/><IconButton icon="close" variant="square" label="Delete"/><IconButton icon="plus" variant="ghost" label="New pocket"/></Row>
+<Row label="SegmentedControl · md / sm"><div style={{width:330}}><SegmentedControl options={[{value:'day',label:'Day'},{value:'week',label:'Week'},{value:'month',label:'Month'},{value:'year',label:'Year'}]} value={p} onChange={setP}/></div><SegmentedControl size="sm" options={[{value:'fair',label:'Fair'},{value:'pct',label:'%'},{value:'amt',label:'€'}]} value={m} onChange={setM}/></Row>
+<Row label="Toggle · md on/off · sm"><Toggle checked={t} onChange={setT}/><Toggle checked={!t} onChange={v=>setT(!v)}/><Toggle size="sm" checked/></Row>
+<Row label="Chip · choice / date / filter / dashed / removable / person"><Chip selected>Today</Chip><Chip>Yesterday</Chip><Chip variant="filter" selected>All</Chip><Chip variant="filter">Mandatory</Chip><Chip variant="dashed">+ New</Chip><Chip variant="removable">Groceries</Chip><Chip person={{name:'Léa',hue:40}}>Léa</Chip><Chip person={{name:'You',hue:215}} selected>You</Chip></Row>
+<Row label="ChipGroup · two rows + peek, fades when scrollable"><div style={{width:360}}><ChipGroup>{cats.map(([id,n,h])=><Chip key={id} hue={h} selected={c===id} onClick={()=>setC(id)}>{n}</Chip>)}<Chip variant="dashed">+ New</Chip><Chip hue={120}>Freelance</Chip><Chip hue={150}>Salary</Chip></ChipGroup></div></Row>
+</div>;}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);});
+</script></body></html>

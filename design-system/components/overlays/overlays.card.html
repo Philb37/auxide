@@ -1,0 +1,28 @@
+<!-- @dsCard group="Components" viewport="1000x1130" name="Overlays" -->
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<script src="../../_ds/loader.js"></script>
+<style>body{padding:20px}.l{font:500 11px ui-monospace,monospace;color:var(--text-subtle);margin-bottom:6px}</style></head><body><div id="root"></div>
+<script type="text/babel">
+AuxideReady.then(function(ns){const {Sheet,ConfirmDialog,FieldCard,Button}=ns;
+const Lab=({children})=><div className="l">{children}</div>;
+const noop=()=>{};
+const Frame=({w,h,children})=><div style={{position:'relative',width:w,height:h,borderRadius:28,overflow:'hidden',background:'var(--surface-app)',boxShadow:'var(--shadow-card)',flex:'none'}}>{children}</div>;
+const Form=({title,cta})=><div style={{padding:'22px 24px 24px',display:'flex',flexDirection:'column',gap:14}}>
+  <span style={{font:'600 22px/1.2 var(--font-display)'}}>{title}</span>
+  <FieldCard label="Name" value="Lisbon trip" onChange={noop}/>
+  <FieldCard label="Budget" value="€ 1,200" onChange={noop}/>
+  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,paddingTop:4}}><Button variant="secondary" block>Cancel</Button><Button block>{cta}</Button></div>
+</div>;
+function Demo(){
+return <div style={{display:'flex',flexDirection:'column',gap:20}}>
+<div style={{display:'flex',gap:20,alignItems:'flex-start'}}>
+<div><Lab>Sheet · phone (bottom sheet) + ConfirmDialog</Lab><Frame w={360} h={560}><Sheet variant="sheet"><ConfirmDialog title="Delete this spending?" body="“Brunch” · €34 will be removed from Everyday."/></Sheet></Frame></div>
+<div><Lab>Sheet · modal (desktop, 520 wide)</Lab><Frame w={580} h={560}><Sheet variant="modal"><Form title="New pocket" cta="Create"/></Sheet></Frame></div>
+</div>
+<div><Lab>Sheet · drawer (tablet, 440 wide from the right)</Lab><Frame w={960} h={460}><Sheet variant="drawer"><Form title="Edit pocket" cta="Save"/></Sheet></Frame></div>
+</div>;}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);});
+</script></body></html>
