@@ -1,0 +1,42 @@
+{
+	"name": "auxide-front",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"imports": {
+		"#lib": "./src/lib/index.js",
+		"#lib/*": "./src/lib/*"
+	},
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"tauri": "cross-env TAURI_APP_PATH=../tauri-shell tauri",
+		"test:unit": "vitest",
+		"test": "vitest run"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-static": "^4.0.1",
+		"@sveltejs/kit": "^3.0.0",
+		"@sveltejs/vite-plugin-svelte": "^7.2.0",
+		"@vitest/browser-playwright": "^4.1.8",
+		"playwright": "^1.60.0",
+		"svelte": "^5.57.2",
+		"svelte-check": "^4.6.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.3.0",
+		"vitest": "^4.1.8",
+		"vitest-browser-svelte": "^2.1.1"
+	},
+	"dependencies": {
+		"auxide-wasm": "link:../crates/wasm/pkg"
+	},
+	"engines" : { 
+		"pnpm" : ">=12.2.1 <13.0.0",
+		"node" : ">=26.11.1 <27.0.0"
+	},
+	"packageManager": "pnpm@12.2.1"
+}

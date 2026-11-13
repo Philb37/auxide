@@ -1,0 +1,127 @@
+name: build
+
+on:
+  push:
+    branches:
+      - "develop"
+    paths-ignore: ['**.md', 'design-system/**']
+  pull_request:
+    paths-ignore: ['**.md', 'design-system/**']
+    
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install package for Tauri
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libsoup-3.0-dev libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Setup Git
+        uses: actions/checkout@v6
+
+      - name: Setup Rust Toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v2
+        with:
+          rustflags: ''
+          cache-save-if: ${{ github.ref == 'refs/heads/develop' }}
+      
+      - name: Cargo deny
+        uses: EmbarkStudios/cargo-deny-action@v2
+      
+      - name: Cargo format
+        run: cargo fmt --all --check
+      
+      - name: Cargo Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      
+      - name: Cargo Test
+        run: cargo test --workspace
+
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Git
+        uses: actions/checkout@v6
+
+      - name: Setup Rust Toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v2
+        with:
+          rustflags: ''
+          cache-save-if: ${{ github.ref == 'refs/heads/develop' }}
+      
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Cargo check
+        run: cargo check -p auxide-core --target wasm32-unknown-unknown
+      
+      - name: Core must stay clean of infrastructure dependencies
+        run: |
+          deps=$(cargo tree -p auxide-core -e normal --target all --prefix none -f '{p}')
+          if grep -E '^(wasm-bindgen|web-sys|js-sys|actix|diesel)' <<<"$deps"; then
+            echo "::error::auxide-core depends on a forbidden crate (see above)"
+            exit 1
+          fi
+
+      - name: Wasm build
+        run: wasm-pack build crates/wasm --release --target web --out-dir pkg
+
+      - name: Upload Wasm package
+        uses: actions/upload-artifact@v7
+        with:
+          name: wasm-pkg
+          path: crates/wasm/pkg/
+          if-no-files-found: error
+          retention-days: 1
+  
+  web:
+    needs: [wasm]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Git
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: 'web/package.json'
+
+      - name: Setup node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: 'web/package.json'
+          cache: pnpm
+          cache-dependency-path: 'web/pnpm-lock.yaml'
+      
+      - name: Download Wasm package
+        uses: actions/download-artifact@v7
+        with:
+          name: wasm-pkg
+          path: crates/wasm/pkg/
+        
+      - name: Install
+        working-directory: web
+        run: pnpm install
+      
+      - name: Check
+        working-directory: web
+        run: pnpm check
+
+      - name: Install Playwright Chromium
+        working-directory: web
+        run: pnpm exec playwright install --with-deps chromium
+      
+      - name: Test
+        working-directory: web 
+        run: pnpm test

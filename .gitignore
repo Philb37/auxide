@@ -19,19 +19,19 @@ cobertura.xml
 # ─────────────────────────────────────────────────────────────
 # WebAssembly (app-wasm via wasm-pack / wasm-bindgen-cli)
 # ─────────────────────────────────────────────────────────────
-crates/app-wasm/pkg/
+crates/wasm/pkg/
 web/src/lib/wasm/generated/
 wasm-pack.log
 
 # ─────────────────────────────────────────────────────────────
-# Tauri 2 (src-tauri)
+# Tauri 2 (tauri-shell)
 # ─────────────────────────────────────────────────────────────
-src-tauri/target/
-src-tauri/gen/schemas/
+tauri-shell/target/
+tauri-shell/gen/schemas/
 # Updater signing keys: never commit
 *.key
 *.key.pub.bak
-src-tauri/*.key
+tauri-shell/*.key
 
 # ─────────────────────────────────────────────────────────────
 # Node / pnpm / SvelteKit / Vite (web/)

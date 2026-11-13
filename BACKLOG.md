@@ -12,9 +12,9 @@ Built from the Auxide prototype (phone, tablet, desktop). Written for a solo dev
 
 | Milestone | Goal | Epics |
 |---|---|---|
-| **M1 · Local core** | Track your own spending offline on a phone (installed PWA) | E0 (F0.1–F0.4, F0.9), E1.1, E2, E3, E4 (solo), E6, E8 |
+| **M1 · Local core** | Track your own spending offline, tested in a desktop browser and on an Android phone over USB (no public hosting yet) | E0 (F0.1–F0.4, F0.9, F0.13), E1.1, E2, E3, E4 (solo), E6, E8 |
 | **M2 · Smart entry** | Entries categorise themselves | E7 |
-| **M3 · Accounts & sync** | Same data on every device | E0 (F0.5, F0.6, F0.11), E1 |
+| **M3 · Accounts & sync** | Same data on every device, with the app and server hosted over HTTPS | E0 (F0.5, F0.6, F0.11, F0.12), E1 |
 | **M4 · Shared pockets** | Split costs with friends | F0.6b, F0.7, E5 |
 | **M5 · Big screens** | Tablet and desktop layouts, desktop app | E9, F0.10 |
 | **M6 · Hardening** | Ready for other people | E10 |
@@ -43,9 +43,9 @@ The architecture is described in `README.md`. In short: a pure Rust `core` crate
 - `core` compiles for both `wasm32-unknown-unknown` and native, and has no dependency on `wasm-bindgen`, `web-sys`, Actix or `diesel` (checked in CI).
 - `app-wasm` is built with `wasm-pack` (or `wasm-bindgen-cli`) and consumed by `web/` as a local package; `pnpm dev` rebuilds it on change.
 - The wasm module runs in a dedicated Web Worker. `web/` talks to it through a typed TS facade (`AuxideApi`), never through raw `wasm-bindgen` exports.
-- A "hello pocket" build creates and lists a pocket on a phone (installed PWA), in a desktop browser and in the Tauri app on Windows and macOS.
-- The Tauri app is also checked on the developer's Linux (EndeavourOS, WebKitGTK). Linux desktop is for personal use only, so if OPFS fails there the fix is a newer WebKitGTK or the PWA in a browser, not a separate storage path.
-- CI runs `cargo fmt`, `cargo clippy`, `cargo test`, `pnpm check`, `pnpm test` and a wasm build on every push.
+- A "hello pocket" build creates and lists a pocket in a desktop browser (Chrome and Firefox, `pnpm dev`), on an Android phone as an installed PWA served from the dev machine through `adb reverse tcp:5173 tcp:5173` (`localhost` counts as a secure context, so the service worker and OPFS work), and in the Tauri shell on Linux.
+- The Tauri shell on Linux (EndeavourOS, WebKitGTK) is for personal use only, so if OPFS fails there the fix is a newer WebKitGTK or the PWA in a browser, not a separate storage path. Day-to-day testing happens in the browser; the shell is opened from time to time to check it still works.
+- CI runs `cargo fmt`, `cargo clippy`, `cargo test`, `pnpm check`, `pnpm test`, a wasm build of `core` and the `core` dependency check on every push. CI checks only: it deploys nothing and builds no installers (see F0.12 and F0.10). Caching and build speed are in F0.13.
 
 ### F0.2 Local data model & storage — MVP
 **Story:** As a user, I want my data saved on the device, so that the app works without a connection.
@@ -133,24 +133,55 @@ The architecture is described in `README.md`. In short: a pure Rust `core` crate
 - Web app manifest (name, icons from the logo, theme colours, `display: standalone`).
 - Service worker precaches the app shell, the wasm module, the worker and the fonts; the app opens with no connection.
 - A new version shows *Update available · Reload* instead of reloading silently mid-entry.
-- Tested as an installed app on iOS Safari and Android Chrome. Note: iOS may clear data of a site that is not installed, so onboarding suggests *Add to Home Screen*.
+- Tested as an installed app on Android Chrome in M1 (served from the dev machine through `adb reverse`, see F0.1).
+- Tested as an installed app on iOS Safari once the app is served over HTTPS (F0.12, M3). Note: iOS may clear data of a site that is not installed, so onboarding suggests *Add to Home Screen*.
 
 ### F0.10 Desktop shell — MVP (M5)
 **Story:** As a desktop user, I want a real desktop app, so that Auxide lives in my dock or start menu.
 **AC**
 - Tauri 2 loads the static `web/` build; it holds no business logic.
-- Installers for Windows (MSI / NSIS), macOS (DMG, signed and notarised) and Linux (AppImage / deb).
+- Installers for Windows (MSI / NSIS) and Linux (AppImage / deb). macOS is Later.
+- Checked on Windows (WebView2) on a real machine or VM.
+- Installers are built in CI on Windows and Linux runners when a version tag is pushed, added to the release pipeline from F0.12.
 - Auto-update through the Tauri updater.
 - The Content Security Policy allows the wasm module, the worker and calls to the sync server only.
 
-### F0.11 Server & deployment — MVP (M3)
-**Story:** As the developer, I want the server easy to run and deploy, so that sync is reliable.
+### F0.11 Server — MVP (M3)
+**Story:** As the developer, I want the server easy to run and test, so that sync is reliable.
 **AC**
 - `crates/server` (Actix Web) exposes auth, `push` / `pull` (personal pockets), shared pocket endpoints with a live channel, and pocket membership endpoints, all typed with `api-types`.
 - PostgreSQL through `diesel` + `diesel-async` (with `deadpool` or `bb8` pooling). Schema managed by `diesel_migrations`, embedded and run at start-up; `schema.rs` generated by the Diesel CLI and checked in.
 - Configuration through environment variables; a `docker compose` file runs the server and Postgres locally.
-- Health endpoint, structured logs (`tracing`), and nightly database backups.
+- Health endpoint and structured logs (`tracing`).
 - Integration tests run the server against a real Postgres in CI.
+
+### F0.12 Hosting & release pipeline — MVP (M3)
+**Story:** As the developer, I want the app and the server reachable over HTTPS, so that my devices can sync and the PWA installs on any phone.
+**Deferred on purpose:** nothing is hosted before M3. Until then, testing uses `pnpm dev` in a desktop browser, Android through `adb reverse` and the Tauri shell on Linux (F0.1).
+**AC**
+- The static `web/build` is served over HTTPS on a domain, from a static host or from the Actix server (decided at the time).
+- The server and Postgres run on a chosen host (VPS or container platform) with TLS and environment-based configuration (F0.11).
+- Nightly database backups, and a restore has been tested at least once.
+- Pushing a version tag builds and deploys the PWA and the server. F0.10 adds the desktop installers to the same pipeline in M5.
+- iOS Safari is tested as an installed PWA once HTTPS is in place (F0.9).
+
+### F0.13 Build caching & wasm size — MVP (M1)
+**Story:** As the developer, I want CI runs to stay fast and the wasm module to stay small, so that I get quick feedback on every push and the app loads fast on a phone.
+**AC**
+*CI caching*
+- Rust jobs install the toolchain with `actions-rust-lang/setup-rust-toolchain`, which reads `rust-toolchain.toml` (channel, components, `wasm32-unknown-unknown`) and caches the cargo registry and `target/` through its built-in `Swatinem/rust-cache`.
+- Each job (`rust`, `wasm`) keeps its own cache, because they build for different targets and features.
+- Caches are saved from `main` only. Other branches restore them but don't save, so they don't push useful caches out of GitHub's 10 GB limit.
+- The pnpm store is cached (`actions/setup-node` with `cache: pnpm`).
+- CLI tools (`wasm-pack`, `cargo-deny`, `cargo-llvm-cov`) are installed as prebuilt binaries (`taiki-e/install-action`), never compiled with `cargo install`.
+- A warm run (cache hit, no dependency change) finishes in under 5 minutes.
+
+*Wasm size*
+- Release builds of `app-wasm` run binaryen's `wasm-opt` on the `.wasm` file after `wasm-bindgen` (wasm in, smaller and faster wasm out). `wasm-pack` does this automatically in release mode; flags are set in `[package.metadata.wasm-pack.profile.release]` (start with `-Oz` for size, compare with `-O3` for speed).
+- Size settings for `app-wasm` (`opt-level` `"s"` / `"z"` vs `3`, LTO) are chosen by measuring, not guessing. Settings that would also change the server build go in a dedicated profile or a per-package override.
+- Dev builds (`pnpm dev`) skip `wasm-opt` so rebuilds stay fast.
+- CI reports the raw and compressed (gzip or brotli) size of the release `.wasm` on every push. A size budget is set after the first measurement (SQLite alone is a large part of it), and CI fails if a change goes over it.
+- `twiggy` (or similar) is used to find what takes space when the budget is exceeded.
 
 ---
 
@@ -546,3 +577,4 @@ The architecture is described in `README.md`. In short: a pure Rust `core` crate
 - Receipt photo on an entry.
 - Notifications when a budget reaches 80%.
 - Multiple currencies inside one pocket.
+- macOS desktop app: Tauri build on WKWebView, DMG installer signed and notarised (needs an Apple Developer account and a macOS build machine or CI runner).
