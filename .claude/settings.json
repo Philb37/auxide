@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash .claude/skills/auxide-ui/scripts/check-ui.sh:*)",
+      "Bash(bash .claude/skills/auxide-core/scripts/check-architecture.sh:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/svelte-after-edit.sh",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

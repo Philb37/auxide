@@ -19,3 +19,11 @@ panic = "unwind"
 strip = true
 
 [workspace.lints.clippy]
+# Errors are values: no hidden panics outside tests (tests are allowed through clippy.toml).
+unwrap_used = "warn"
+# expect_used = "warn"  # enable with F0.14, once the Tauri template code is removed
+panic = "warn"
+# Money is integer cents everywhere (see CLAUDE.md): no float arithmetic in any crate.
+float_arithmetic = "warn"
+# Use #[expect(...)] with a reason instead of #[allow(...)].
+allow_attributes_without_reason = "warn"

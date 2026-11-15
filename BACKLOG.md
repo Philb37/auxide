@@ -12,7 +12,7 @@ Built from the Auxide prototype (phone, tablet, desktop). Written for a solo dev
 
 | Milestone | Goal | Epics |
 |---|---|---|
-| **M1 · Local core** | Track your own spending offline, tested in a desktop browser and on an Android phone over USB (no public hosting yet) | E0 (F0.1–F0.4, F0.9, F0.13), E1.1, E2, E3, E4 (solo), E6, E8 |
+| **M1 · Local core** | Track your own spending offline, tested in a desktop browser and on an Android phone over USB (no public hosting yet) | E0 (F0.1–F0.3, F0.4a–F0.4h, F0.9, F0.13, F0.14), E1.1, E2, E3, E4 (solo), E6, E8 |
 | **M2 · Smart entry** | Entries categorise themselves | E7 |
 | **M3 · Accounts & sync** | Same data on every device, with the app and server hosted over HTTPS | E0 (F0.5, F0.6, F0.11, F0.12), E1 |
 | **M4 · Shared pockets** | Split costs with friends | F0.6b, F0.7, E5 |
@@ -28,6 +28,7 @@ Built from the Auxide prototype (phone, tablet, desktop). Written for a solo dev
 - Domain logic lives in the Rust `core` crate, not in Svelte components, and is covered by unit tests (totals, splits, rules, periods).
 - Usable at phone width with tap targets of 44px or more, and reachable with a screen reader.
 - All copy lives in the string files, not in the code.
+- UI follows the `auxide-ui` skill (F0.4a): screens are built from `web/src/lib/ui` components, no dependency outside the library map, `check-ui.sh` and `svelte-autofixer` pass, and any new or changed component is in the gallery.
 
 ---
 
@@ -45,7 +46,7 @@ The architecture is described in `README.md`. In short: a pure Rust `core` crate
 - The wasm module runs in a dedicated Web Worker. `web/` talks to it through a typed TS facade (`AuxideApi`), never through raw `wasm-bindgen` exports.
 - A "hello pocket" build creates and lists a pocket in a desktop browser (Chrome and Firefox, `pnpm dev`), on an Android phone as an installed PWA served from the dev machine through `adb reverse tcp:5173 tcp:5173` (`localhost` counts as a secure context, so the service worker and OPFS work), and in the Tauri shell on Linux.
 - The Tauri shell on Linux (EndeavourOS, WebKitGTK) is for personal use only, so if OPFS fails there the fix is a newer WebKitGTK or the PWA in a browser, not a separate storage path. Day-to-day testing happens in the browser; the shell is opened from time to time to check it still works.
-- CI runs `cargo fmt`, `cargo clippy`, `cargo test`, `pnpm check`, `pnpm test`, a wasm build of `core` and the `core` dependency check on every push. CI checks only: it deploys nothing and builds no installers (see F0.12 and F0.10). Caching and build speed are in F0.13.
+- CI runs `cargo fmt`, `cargo clippy`, `cargo test`, `pnpm check`, `pnpm test`, the UI checks (`check-ui.sh`, F0.4a), a wasm build of `core` and the `core` dependency check on every push. CI checks only: it deploys nothing and builds no installers (see F0.12 and F0.10). Caching and build speed are in F0.13.
 
 ### F0.2 Local data model & storage — MVP
 **Story:** As a user, I want my data saved on the device, so that the app works without a connection.
@@ -70,17 +71,68 @@ The architecture is described in `README.md`. In short: a pure Rust `core` crate
 - 100% unit test coverage on this module, plus property tests for splits (`proptest`).
 
 ### F0.4 Port the design system to Svelte — MVP
-**Already done:** the design system in this project (`DESIGN-SYSTEM.md`, `tokens/`, `components/`, `ui_kits/auxide-app/`) defines the tokens (colours, category hues, type, spacing, radii, shadows, motion), the 32 reference components with props, and a phone click-through. It is a React/HTML reference, not production code.
+**Already done:** `design-system/` (`DESIGN-SYSTEM.md`, `tokens/`, `components/`, `guidelines/`) defines the tokens (colours, category hues, type, spacing, radii, shadows, motion), 35 reference components with props, and specimen cards. It is a React/HTML reference made in Claude Design, not production code. `styles.css`, `_ds/loader.js` and `ui_kits/auxide-app/` (the phone click-through) are referenced but were not committed, so the `.card.html` previews don't open yet.
 **Story:** As the developer, I want the design system rebuilt as Svelte components, so that every screen uses the same parts.
+**Decided (2026-11-15):** the look comes from our tokens, behaviour from a small set of headless libraries. Bits UI for accessible primitives (no Tailwind, no shadcn-svelte), vaul-svelte for the phone bottom sheet, svelte-sonner for toasts, `@number-flow/svelte` for amounts the app computes. No decorative component libraries (Magic UI, Aceternity…), no icon set. The rules, the component → library map and the checks live in the project skill `.claude/skills/auxide-ui/`. F0.4 is split into F0.4a–F0.4h, done in that order.
+
+### F0.4a UI tooling & guardrails — MVP (M1)
+**Story:** As the developer, I want the UI rules written down and checked automatically, so that no screen reinvents a component or drifts from the design system.
 **AC**
-- `tokens/*.css` are imported as-is (they are already CSS custom properties) from the root layout, and components read `var(--…)` instead of hard-coded values.
-- Fredoka and Figtree are bundled with the app (local `.woff2` or `@fontsource`, no Google Fonts request), so they work offline.
-- Each component in `components/` has a `.svelte` equivalent: props from its `.d.ts` become typed `$props()`, `children` becomes a snippet, and callbacks keep their names (`onChange`, `onClick`).
-- Hue helpers (`hueColors`, `tint`, `deep`, `mid`) and `keypadInput` move to plain TypeScript modules with unit tests.
-- A component gallery page (or Storybook) shows every component and variant, replacing the `.card.html` previews.
-- Sheet uses native gestures: swipe down to close on phone, Esc on desktop, focus trapped while open.
-- Keypad, Toggle, SegmentedControl and Chip expose their role and state to screen readers (F10.1).
-- Press and hover states are defined. The prototype has none, so they are a new design decision to review.
+- The `auxide-ui` skill (`.claude/skills/auxide-ui/`) is the reference for all UI work: workflow, library map (`references/library-map.md`), porting guide (`references/porting.md`) and checks (`scripts/check-ui.sh`).
+- The Svelte skills `svelte-core-bestpractices` and `svelte-code-writer` (`sveltejs/ai-tools`) are installed, and `npx @sveltejs/mcp svelte-autofixer` is allowed in the global Claude Code settings (`~/.claude/settings.json`), like the skills themselves. The project `.claude/settings.json` allows `check-ui.sh`, which lives in the repo.
+- CI runs `bash .claude/skills/auxide-ui/scripts/check-ui.sh` on every push, next to `pnpm check` and `pnpm test` (F0.1).
+- Only the dependencies in the library map are installed: `bits-ui`, `vaul-svelte` (pinned to exactly `1.0.0-next.7`, a prerelease), `svelte-sonner`, `@number-flow/svelte`, `@fontsource/fredoka`, `@fontsource/figtree`. `@tanstack/svelte-virtual` comes with F10.2. Adding anything else means updating the map first.
+- `styles.css`, `_ds/loader.js` and `ui_kits/auxide-app/` are retrieved from the Claude Design project so the reference cards open locally, or their mentions are removed from `DESIGN-SYSTEM.md`.
+- Copy lives in string files from the first screen (one plain TS module per area until F10.3 picks the localisation approach), so the Definition of Done rule holds from M1.
+
+### F0.4b Tokens, fonts & global styles — MVP (M1)
+**AC**
+- `design-system/tokens/*.css` stay the single source and are imported as-is from the root layout (no copy in `web/`). Vite is allowed to read `design-system/`.
+- CI runs when only tokens change: in `build.yml`, `design-system/tokens/**` is re-included in `paths`, after the `!design-system/**` exclusion (same pattern as the `.claude/skills/*/scripts/**` line), for both `push` and `pull_request`.
+- Fredoka (600) and Figtree (500, 600) come from `@fontsource`, and the Google Fonts `@import` in `tokens/fonts.css` is replaced, so fonts work offline and are precached by the service worker (F0.9).
+- `base.css` applies to the app: cream background, Figtree body, box sizing.
+- Hue colours (tint / mid / avatar / deep) are derived in one place from a `--hue` value, in CSS and in `web/src/lib/ui/hue.ts`.
+- A token missing during the port is added to `tokens/` rather than inlined (for example the soft button text colour).
+
+### F0.4c Helpers & component gallery — MVP (M1)
+**AC**
+- Components live in `web/src/lib/ui/<group>/` (same groups as the reference: controls, display, forms, lists, feedback, overlays, entry, navigation) and are exported from `web/src/lib/ui/index.ts`.
+- `hueColors` / `tint` / `deep` / `mid` (`hue.ts`) and `keypadInput` (`keypad.ts`) are plain TypeScript with unit tests. Amount formatting comes from the money library (F0.3), not from a component.
+- A gallery route (`/gallery`, dev builds only) shows every component, variant and state, and replaces the `.card.html` previews.
+
+### F0.4d Interactive primitives (Bits UI) — MVP (M1)
+**Story:** As a keyboard or screen-reader user, I want every control to behave like a real control, so that the app is usable without touch.
+**AC**
+- Built on Bits UI and styled only with tokens through its `data-*` state attributes: Toggle (`Switch`), SegmentedControl and ChipGroup (`ToggleGroup`), ChoiceCard and HuePicker (`RadioGroup`), ProgressBar (`Progress` / `Meter`), pickers with ▾ (`Select`), ••• menus (`DropdownMenu`), ConfirmDialog (`AlertDialog`).
+- Each one exposes its role and state to screen readers and works with the keyboard (F10.1). The reference's clickable `<span>`s are gone.
+- Every icon-only control has an accessible label.
+
+### F0.4e Sheet & toasts — MVP (M1)
+**AC**
+- One `Sheet` component with one API. On phone it is a vaul-svelte drawer: swipe down or a backdrop tap closes it (F9.1). On tablet it is a right drawer (≈440px, F9.2) and on desktop a centred modal (≈520px, F9.3), both on Bits UI `Dialog`. The variant follows the breakpoint (F9.6).
+- Focus is trapped while open, `Esc` closes the top sheet (F9.7), timings and scrim come from the motion tokens (`--dur-sheet`, `--ease-sheet`, `--scrim`), and the close waits `--dur-close` before unmounting.
+- vaul-svelte is used only inside `Sheet`, so it can be swapped for Bits UI `Dialog` plus a small swipe gesture without touching any screen.
+- Toasts use svelte-sonner with our `Toast` markup, auto-hide after `--toast-ms` (4.5s) and support an action button, used by the *Undo* toasts (F2.9, F4.4, F7.6).
+
+### F0.4f Presentational & entry components — MVP (M1)
+**AC**
+- Own Svelte components, ported from the reference `.jsx` (props from the `.d.ts` become typed `$props()`, `children` becomes a snippet, callbacks keep their names): Button, IconButton, Chip, Amount, Avatar, AvatarStack, Badge, StatusChip, StripBar, Card, HeroCard, CategoryTile, Logo / LogoMark, Icon, FieldCard, AmountInput, MoneyInput, ListRow, SettingsList / SettingsRow, ToggleRow, Banner, EmptyState, Keypad, BottomNav, SidebarNav / NavItem, PeriodStepper.
+- Clickable things are `<button>` or `<a>` (Keypad keys, *Done*, navigating rows). Nav items mark the current page with `aria-current`.
+- `Icon` keeps the reference SVG paths. No icon library.
+- Each component matches its reference card (sizes, radii, fonts, colours) and passes `check-ui.sh` and `svelte-autofixer`.
+
+### F0.4g Animated amounts — MVP (M1)
+**Story:** As a user, I want totals to visibly update when something changes, so that I notice the effect of what I just did.
+**AC**
+- Amounts the app computes animate with `@number-flow/svelte`: pocket balances and totals, spent / income in the hero (F3.2), *left* / *over* (F3.2, F3.3, F4.1), *Left to allocate* (F6.4), balances and settle-up totals (F5.4, F5.5).
+- Amounts the user types or entered stay static: entry rows (F4.6), amount fields and keypad (F2.3), budgets, split values being edited (F5.3).
+- The animated amount is formatted exactly like `Amount` (same formatter from F0.3: `€` prefix, decimals only when needed, true minus `−`, `+` for income), and it does not animate when *reduce motion* is on (F10.1).
+
+### F0.4h Press, hover & focus states — MVP (M1)
+**AC**
+- Press and hover states are defined. The prototype has none, so they are a new design decision, reviewed before they are applied (`DESIGN-SYSTEM.md` allows a subtle shadow lift at most).
+- A visible focus style is defined for every control (needed by F9.7 and F10.1), built from the existing ring tokens.
+- The decision is written into `DESIGN-SYSTEM.md` and applied to all components in the gallery.
 
 ### F0.5 Auth service — MVP (M3)
 **Story:** As a user, I want a secure account, so that only I can see my pockets.
@@ -98,6 +150,12 @@ The architecture is described in `README.md`. In short: a pure Rust `core` crate
 - Local-first: writes go to SQLite in OPFS and to an outbox table, then `sync-http` uploads them.
 - Protocol (types in `api-types`): `push` sends outbox changes; `pull` returns everything changed since the client's last server cursor. Both are idempotent (change ids), so retries are safe.
 - Merge rules live in `core` and run on both sides: last write wins per field (HLC timestamps), and a tombstone always wins over an edit, so a deleted entry stays deleted.
+- Sync runs in the background and never blocks editing. Merging is order-independent and idempotent: the same changes merged in any order, any number of times, give the same result on every device (tested by shuffling and replaying a set of changes).
+- A pulled change is always merged field by field, never written over the local record.
+- Saves write and stamp only the fields the user changed, never the whole record as it was loaded, so a stale snapshot can't erase fields a pull brought in meanwhile (tested: pull lands between opening and saving an edit).
+- Fields that must stay consistent together are merged as one unit with a single timestamp (the list is decided per aggregate, for example category + mandatory flag when a rule sets both).
+- Concurrent edits of the same field on two offline devices resolve to the same winner on every device (HLC, then device id).
+- HLC: a device never stamps a change below the latest timestamp it has received, and a remote timestamp far in the future is clamped (tested with a device clock several minutes behind).
 - Changes from other devices arrive within a few seconds while the app is open (the same live channel as F0.6b, or polling).
 - Sync runs on start, on reconnect (`online` event), after local writes (debounced) and on a timer; only one tab or window syncs at a time (Web Locks API).
 - The sync status shows *Synced*, *Syncing* or *Offline* (header chip / sidebar).
@@ -182,6 +240,16 @@ The architecture is described in `README.md`. In short: a pure Rust `core` crate
 - Dev builds (`pnpm dev`) skip `wasm-opt` so rebuilds stay fast.
 - CI reports the raw and compressed (gzip or brotli) size of the release `.wasm` on every push. A size budget is set after the first measurement (SQLite alone is a large part of it), and CI fails if a change goes over it.
 - `twiggy` (or similar) is used to find what takes space when the budget is exceeded.
+
+### F0.14 Architecture checks in CI — MVP (M1)
+**Story:** As the developer, I want CI to enforce the architecture rules from `CLAUDE.md`, so that a shortcut (domain logic in a shell, an infra crate in `core`) can't slip in unnoticed.
+**Context:** `.claude/skills/auxide-core/scripts/check-architecture.sh` checks the workspace dependency graph, infrastructure crates in `core` (a superset of the current inline `grep` in `build.yml`), clock / random / I/O calls and floats in `core`, Tauri commands in the shell, Tauri APIs and `auxide-wasm` imports in `web/`. It fails today only on the Tauri template code, so it is not in CI yet.
+**AC**
+- The Tauri template code is removed from `tauri-shell/src/lib.rs`: the `greet` command and the `invoke_handler`. The shell only hosts the `web/` build.
+- The `.expect(...)` on the Tauri builder is replaced by proper error handling (or kept with `#[expect(clippy::expect_used, reason = "…")]`), and `expect_used = "warn"` is enabled in `[workspace.lints.clippy]` (commented out until then).
+- `check-architecture.sh` passes locally.
+- In `build.yml`, the wasm job's *Core must stay clean of infrastructure dependencies* step is replaced by `bash .claude/skills/auxide-core/scripts/check-architecture.sh` (the runner already has `cargo` and `python3`).
+- A deliberate violation (for example `auxide-storage-opfs` depending on `auxide-server`) makes CI fail, then is reverted.
 
 ---
 
@@ -273,11 +341,13 @@ The architecture is described in `README.md`. In short: a pure Rust `core` crate
 **AC**
 - Tapping any entry row opens the same panel prefilled.
 - *Save* updates the entry, with the toast *Changes saved*.
+- Only the fields the user changed are saved (F0.6). If a sync updates the entry while the panel is open, the fields the user touched keep their typed values and the others show the synced values.
 
 ### F2.9 Delete entry — MVP
 **AC**
 - *Delete* on an existing entry asks for confirmation and states the name, amount and pocket. Shared pockets add "for everyone".
 - After deleting, a toast with *Undo* restores the entry in place.
+- *Undo* has to fit the rule "a tombstone always wins" (F0.6). Decide how before building it, for example: undo removes the local tombstone only while it has not been pushed yet, or undo creates a new write that explicitly revives the entry.
 
 ---
 
@@ -532,7 +602,7 @@ The architecture is described in `README.md`. In short: a pure Rust `core` crate
 ### F9.7 Keyboard support (desktop) — MVP (M5)
 **AC**
 - `N` opens a new entry, `Esc` closes the top panel, and `Enter` saves when valid.
-- Every control is reachable with Tab and has a visible focus ring.
+- Every control is reachable with Tab and has a visible focus ring (style defined in F0.4h).
 
 ---
 
@@ -540,17 +610,17 @@ The architecture is described in `README.md`. In short: a pure Rust `core` crate
 
 ### F10.1 Accessibility — MVP (M6)
 **AC**
-- Text contrast is at least 4.5:1, including chips and muted labels.
+- Text contrast is at least 4.5:1, including chips and muted labels. The fix is a change to the tokens in `design-system/tokens/`, not per-component overrides.
 - Tap targets are at least 44px on touch devices.
 - Every icon-only control has an accessible label (‹, •••, ✕, keypad keys).
 - Toggles and segmented controls expose their state to screen readers.
 - Text follows the system font size up to 200% without clipping amounts.
-- Motion respects *reduce motion*.
+- Motion respects *reduce motion*: sheets, toasts and animated amounts (F0.4e, F0.4g).
 
 ### F10.2 Performance — MVP (M6)
 **AC**
 - Cold start to Home in under 2s on a mid-range phone with 5,000 entries.
-- Long entry lists are virtualised and scroll at 60fps.
+- Long entry lists are virtualised with `@tanstack/svelte-virtual` (library map) and scroll at 60fps.
 - Totals are recomputed incrementally, with no full rescan on every keystroke.
 
 ### F10.3 Localisation — MVP (M6) / v1.1

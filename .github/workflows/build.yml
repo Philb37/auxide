@@ -4,9 +4,21 @@ on:
   push:
     branches:
       - "develop"
-    paths-ignore: ['**.md', 'design-system/**']
+    paths:
+      - '**'
+      - '!**.md'
+      - '!design-system/**'
+      - '!.claude/**'
+      # Re-included: the guardrail scripts CI runs (F0.4a, F0.14).
+      - '.claude/skills/*/scripts/**'
   pull_request:
-    paths-ignore: ['**.md', 'design-system/**']
+    paths:
+      - '**'
+      - '!**.md'
+      - '!design-system/**'
+      - '!.claude/**'
+      # Re-included: the guardrail scripts CI runs (F0.4a, F0.14).
+      - '.claude/skills/*/scripts/**'
     
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
