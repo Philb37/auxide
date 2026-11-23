@@ -27,9 +27,10 @@ Crates (real names):
 - **No domain logic outside `core`**: not in `wasm` (it maps types and forwards calls), not in `server` handlers (they parse, call a use case, map the result), not in adapters (they translate), not in `web/` (it displays), not in `tauri-shell` (it is only a shell: no commands, no storage, no business logic).
 - `web/` reaches the domain only through the TypeScript facade `AuxideApi` (`web/src/lib/api/`). Only that folder imports `auxide-wasm`. Svelte components never compute totals, splits, balances, periods or rule matches.
 - Time, randomness and ids enter `core` only through ports (`Clock`/HLC, `IdGenerator`). `core` never calls `SystemTime::now`, `Uuid::now_v7`, `rand`.
+- Logging and tracing in `core` go only through the `tracing` facade (macros, `#[instrument]`), never with amounts, names or tokens. Subscribers and exporters (`tracing-subscriber`, OpenTelemetry) are set up only in the composition roots (F0.15).
 - Money is integer cents (`i64`) everywhere, never floats, including across the wasm and HTTP boundaries.
 
-Checked automatically by `bash .claude/skills/auxide-core/scripts/check-architecture.sh` (dependency graph, forbidden crates in `core`, clock/random calls in `core`, `auxide-wasm` imports in `web/`, Tauri commands/IPC). Details and the why: `auxide-core` skill.
+Checked automatically by `bash scripts/check-architecture.sh` (dependency graph, forbidden crates in `core`, clock/random calls in `core`, `auxide-wasm` imports in `web/`, Tauri commands/IPC). Details and the why: `auxide-core` skill.
 
 ## Skills, agents, workflows
 
@@ -49,6 +50,6 @@ Checked automatically by `bash .claude/skills/auxide-core/scripts/check-architec
 ## Commands
 
 - Rust: `cargo fmt --all --check` · `cargo clippy --workspace --all-targets -- -D warnings` · `cargo test --workspace` · `cargo check -p auxide-core --target wasm32-unknown-unknown`
-- Wasm: `wasm-pack build crates/wasm --dev --target web --out-dir pkg`
+- Wasm: `wasm-pack build crates/wasm --dev --target web --out-dir ../../web/wasm-pkg`
 - Web (in `web/`): `pnpm check` · `pnpm test`
-- Guardrails: `bash .claude/skills/auxide-core/scripts/check-architecture.sh` · `bash .claude/skills/auxide-ui/scripts/check-ui.sh`
+- Guardrails: `bash scripts/check-architecture.sh` · `bash scripts/check-ui.sh`

@@ -30,7 +30,21 @@
 
 A new crate must be added to this table and to the script before it is used.
 
-**Forbidden in `core`, even transitively:** `wasm-bindgen`, `web-sys`, `js-sys`, `gloo*`, `actix*`, `diesel*`, `sqlx`, `rusqlite`, `sqlite*`, `tokio`, `async-std`, `reqwest`, `hyper`, `tauri*`, `serde_json`, `getrandom`, `rand`. Allowed when useful: `thiserror` (domain errors), `uuid` as a *type* (without generating), `proptest` as a dev-dependency.
+**Forbidden in `core`, even transitively:** `wasm-bindgen`, `web-sys`, `js-sys`, `gloo*`, `actix*`, `diesel*`, `sqlx`, `rusqlite`, `sqlite*`, `tokio`, `async-std`, `reqwest`, `hyper`, `tauri*`, `serde_json`, `getrandom`, `rand`, `tracing-subscriber`, `tracing-opentelemetry`, `tracing-wasm`, `tracing-web`, `opentelemetry*`. Allowed when useful: `thiserror` (domain errors), `uuid` as a *type* (without generating), `tracing` (facade only, see below), `proptest` and `tracing-test` as dev-dependencies.
+
+**Decided (2026-11-24): `tracing` in `core` (F0.15).** `core` may emit spans and events through the `tracing` facade: its macros and `#[instrument]` do no I/O, they only hand data to whatever subscriber the process installed. The rules:
+
+- **Only the facade.** `tracing` is the one observability crate in `core`: no `log`, no `println!`/`eprintln!`/`dbg!`, no subscriber, no exporter.
+- **Subscribers live in the composition roots.**
+  - `server`: `tracing-subscriber` + OTLP.
+  - `wasm`: the browser console in development, OTLP in production with F0.8.
+  - Without a subscriber (most unit tests), `tracing` calls are no-ops.
+- **What to instrument:**
+  - one span per use case (`#[instrument(skip_all, fields(pocket_id = %id))]`);
+  - `warn!`/`error!` events where a domain rule refuses something or a port returns an error.
+  - Adapters add their own spans around I/O.
+- **Privacy:** never record amounts, entry or pocket names, notes, emails or tokens, as a field or in a message. Record only ids, error codes, counts and durations. Use `skip_all` on `#[instrument]` and list the fields explicitly, because the default records every argument with `Debug`.
+- **Levels:** `error` for a failure the user sees, `warn` for a refused or retried operation, `info` for a use case completing (at most one per use case), `debug`/`trace` for detail. Never log in a loop over entries at `info` or above.
 
 **Open decision — `serde` in `core`.** Recommended: no. The domain should not know its wire format; `api-types` is the contract and the composition roots map domain ↔ DTO. If the user decides otherwise, record it here.
 

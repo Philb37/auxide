@@ -1,2 +1,11 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	import PocketList from '#lib/components/PocketList.svelte';
+</script>
+
+<svelte:head>
+	<title>Auxide</title>
+</svelte:head>
+
+<h1>Auxide</h1>
+
+<PocketList />

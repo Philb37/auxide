@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Auxide architecture guardrails (hexagonal dependency rule + pure core + thin shells).
-# Usage: bash .claude/skills/auxide-core/scripts/check-architecture.sh
+# Usage: bash scripts/check-architecture.sh
 # Exit 1 if a rule is broken. Rules and the why: .claude/skills/auxide-core/references/architecture.md
 set -uo pipefail
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
@@ -41,14 +41,14 @@ for p in m["packages"]:
 # 2. Infrastructure crates in core, transitively.
 if cargo metadata --format-version 1 --no-deps >/dev/null 2>&1; then
   infra="$(cargo tree -p auxide-core -e normal,build --target all --prefix none -f '{p}' 2>/dev/null \
-    | grep -E '^(wasm-bindgen|web-sys|js-sys|gloo|actix|diesel|sqlx|rusqlite|libsqlite3|sqlite|tokio|async-std|reqwest|hyper|tauri|serde_json|getrandom|rand) ' | sort -u)"
+    | grep -E '^(wasm-bindgen|web-sys|js-sys|gloo|actix|diesel|sqlx|rusqlite|libsqlite3|sqlite|tokio|async-std|reqwest|hyper|tauri|serde_json|getrandom|rand|tracing-subscriber|tracing-opentelemetry|tracing-wasm|tracing-web|opentelemetry[a-z_-]*) ' | sort -u)"
   [ -n "$infra" ] && report "Infrastructure crate in auxide-core" "core stays pure: put it behind a port and implement it in an adapter" "$infra"
 fi
 
 # 3. Clock, randomness, id generation, I/O called directly from core.
 if [ -d crates/core/src ]; then
-  calls="$(grep -rnE '(SystemTime|Instant)::now|Utc::now|Local::now|OffsetDateTime::now|Uuid::(now_v7|new_v4|new_v7)|thread_rng|rand::|std::fs::|std::net::|std::env::|println!|eprintln!' crates/core/src 2>/dev/null)"
-  [ -n "$calls" ] && report "Side effect inside auxide-core" "time, ids and randomness come from the Clock / IdGenerator ports; no I/O or printing in core" "$calls"
+  calls="$(grep -rnE '(SystemTime|Instant)::now|Utc::now|Local::now|OffsetDateTime::now|Uuid::(now_v7|new_v4|new_v7)|thread_rng|rand::|std::fs::|std::net::|std::env::|println!|eprintln!|dbg!|\blog::' crates/core/src 2>/dev/null)"
+  [ -n "$calls" ] && report "Side effect inside auxide-core" "time, ids and randomness come from the Clock / IdGenerator ports; no I/O or printing in core: log through the tracing macros" "$calls"
   floats="$(grep -rnE '\b(f32|f64)\b' crates/core/src 2>/dev/null)"
   [ -n "$floats" ] && report "Float in auxide-core" "money is i64 cents; if this float is not money (e.g. a ratio for display), justify it" "$floats"
 fi

@@ -1,14 +1,17 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+//! Auxide's domain: entities, use cases and the ports they need.
+//!
+//! Pure by design: no I/O, no framework, no infrastructure crate. Time, randomness and ids
+//! come in through ports (`IdGenerator`), and storage through repository ports
+//! (`PocketRepository`). Composition roots (`auxide-wasm`, `auxide-server`) pick the adapters.
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+/// Use cases: what a user can do, written against the domain and its ports.
+pub mod application;
+/// Entities, value objects, domain errors and the ports the use cases rely on.
+pub mod domain;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+// TODO(F0.2): once storage-opfs replaces the in-memory repository, drop
+// `features = ["testing"]` from crates/wasm/Cargo.toml so no test double ships.
+/// Test doubles for the ports (deterministic ids, in-memory repositories).
+/// Built for core's own tests and behind the `testing` feature for other crates.
+#[cfg(any(test, feature = "testing"))]
+pub mod testing;

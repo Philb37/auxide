@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(bash .claude/skills/auxide-ui/scripts/check-ui.sh:*)",
-      "Bash(bash .claude/skills/auxide-core/scripts/check-architecture.sh:*)"
+      "Bash(bash scripts/check-ui.sh:*)",
+      "Bash(bash scripts/check-architecture.sh:*)"
     ]
   },
   "hooks": {

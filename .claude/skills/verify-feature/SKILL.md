@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # /verify-feature
 
-Answer one question with evidence: *is this backlog item done?* Works the same whether the user or Claude wrote the code. Do not fix anything unless asked afterwards; never edit Rust.
+Answer one question with evidence: *is this backlog item done?* Works the same whether the user or Claude wrote the code. Do not fix anything unless asked afterwards; never edit Rust. The only file this workflow edits is `BACKLOG.md` (step 6).
 
 ## 1. Load the item
 
@@ -43,3 +43,12 @@ Go through each DoD bullet (offline first, cents, logic in core with tests, phon
 3. DoD table.
 4. Review findings (from step 2), must-fix first.
 5. Next steps: what is missing, who does it (Rust → the user, UI → Claude can do it), and the manual checks to run.
+
+## 6. Record the result in `BACKLOG.md`
+
+In the item's section only:
+
+- Tick `- [x]` every AC marked ✓ met. Untick `- [ ]` any box that was ticked but is now ✗ not met. Leave ? untested and 👁 manual boxes unticked, unless the user confirms they ran the manual check.
+- Set the `**Status:**` line: `✅ Done (<today, YYYY-MM-DD>)` when every box is ticked and the DoD holds; `🚧 In progress` when some boxes are ticked; otherwise `⬜ To do`.
+- Never reword an AC to make it pass. If an AC is outdated (e.g. a crate was renamed), point it out in the report and let the user decide.
+- End the report by listing the boxes you changed.

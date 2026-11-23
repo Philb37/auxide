@@ -21,6 +21,7 @@ Load the Svelte skills alongside this one: `svelte-core-bestpractices` (how to w
 | Component gallery | `web/src/routes/gallery/` |
 | Which library does what | [references/library-map.md](references/library-map.md) |
 | Translating a reference `.jsx` to Svelte | [references/porting.md](references/porting.md) |
+| Accessibility rules (WCAG 2.1 AA) and how to check them | [references/accessibility.md](references/accessibility.md) |
 
 If `web/src/lib/ui/` does not exist yet, the design-system port (backlog F0.4) has not started: create it with the layout above.
 
@@ -59,11 +60,11 @@ Anything **not** on the map (a new dependency, a component library, an icon set,
 
 ### 4. Verify (before saying "done")
 
-1. `bash .claude/skills/auxide-ui/scripts/check-ui.sh` — hard-coded colours, gradients, banned imports, clickable divs, legacy Svelte syntax, duplicated design-system components. Fix every hit or justify it in the reply.
+1. `bash scripts/check-ui.sh` — hard-coded colours, gradients, banned imports, clickable divs, legacy Svelte syntax, duplicated design-system components. Fix every hit or justify it in the reply.
 2. `npx @sveltejs/mcp svelte-autofixer <file> --svelte-version <version from web/package.json>` on every `.svelte` file you touched (from `svelte-code-writer`).
 3. `cd web && pnpm check && pnpm test`.
 4. The component appears in the gallery with every variant and state from its `.d.ts`.
-5. Accessibility: keyboard reachable, visible focus, accessible name on icon-only controls, state exposed (Bits UI does this — check you did not break it), tap target ≥ 44px.
+5. Accessibility: WCAG 2.1 AA, following every rule in `references/accessibility.md` (structure and semantics, names labels and state, keyboard and focus, async states and messages, contrast colour and zoom, touch targets and motion), plus the project rules it marks (44px targets, reduced motion), checked with its keyboard, screen-reader, 200% zoom and reduced-motion passes.
 6. Compare against the reference card (`design-system/components/<group>/<group>.card.html`) or the `.jsx` values: sizes, radii, fonts, colours match.
 
 ## The NumberFlow rule

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Auxide UI guardrails. Scans the Svelte frontend for design-system drift and reinvented wheels.
-# Usage: bash .claude/skills/auxide-ui/scripts/check-ui.sh [path ...]   (default: web/src)
+# Usage: bash scripts/check-ui.sh [path ...]   (default: web/src)
 # Exit 1 if any check finds something. Each hit prints file:line so it can be fixed or justified.
 set -uo pipefail
 

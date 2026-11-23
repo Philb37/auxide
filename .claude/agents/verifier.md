@@ -18,14 +18,14 @@ The caller gives a scope: `rust`, `web`, `all` (default), or a list of changed f
 2. `cargo clippy --workspace --all-targets -- -D warnings`
 3. `cargo test --workspace`
 4. `cargo check -p auxide-core --target wasm32-unknown-unknown`
-5. `bash .claude/skills/auxide-core/scripts/check-architecture.sh`
+5. `bash scripts/check-architecture.sh`
 6. `cargo deny check` (only if `cargo deny --version` works; otherwise report "skipped: not installed")
 
 **web**
-7. `wasm-pack build crates/wasm --dev --target web --out-dir pkg` (only if `crates/wasm/pkg` is missing or `crates/**` changed)
+7. `wasm-pack build crates/wasm --dev --target web --out-dir ../../web/wasm-pkg` (only if `web/wasm-pkg` is missing or `crates/**` changed)
 8. `cd web && pnpm check`
 9. `cd web && pnpm test`
-10. `bash .claude/skills/auxide-ui/scripts/check-ui.sh`
+10. `bash scripts/check-ui.sh`
 
 ## Report
 
