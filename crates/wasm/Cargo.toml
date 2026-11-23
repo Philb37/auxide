@@ -9,6 +9,14 @@ license.workspace = true
 crate-type = ["cdylib"]
 
 [dependencies]
+auxide-core = { path = "../core", features = ["testing"] }
+serde.workspace = true
+uuid = { workspace = true, features = ["v7", "serde", "js"] }
+serde-wasm-bindgen.workspace = true
+tsify.workspace = true
+wasm-bindgen.workspace = true
+thiserror.workspace = true
+wasm-bindgen-futures.workspace = true
 
-[lints] 
+[lints]
 workspace = true

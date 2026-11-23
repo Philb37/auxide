@@ -60,7 +60,7 @@ http-client, server ──▶ api-types
 tauri-shell ──▶ nothing (it only loads the web build)
 ```
 
-`core` depends on nothing in the workspace. Adapters depend on `core`. Only composition roots (`wasm`, `server`) know which adapters are in use. These rules are checked by `.claude/skills/auxide-core/scripts/check-architecture.sh`.
+`core` depends on nothing in the workspace. Adapters depend on `core`. Only composition roots (`wasm`, `server`) know which adapters are in use. These rules are checked by `scripts/check-architecture.sh`.
 
 ### Why the frontend goes through a TS facade
 
@@ -118,9 +118,9 @@ auxide/
 |---|---|
 | Rust | `cargo fmt --all --check` · `cargo clippy --workspace --all-targets -- -D warnings` · `cargo test --workspace` |
 | Core on wasm | `cargo check -p auxide-core --target wasm32-unknown-unknown` |
-| Wasm package | `wasm-pack build crates/wasm --dev --target web --out-dir pkg` |
+| Wasm package | `wasm-pack build crates/wasm --dev --target web --out-dir ../../web/wasm-pkg` |
 | Web (in `web/`) | `pnpm dev` · `pnpm check` · `pnpm test` |
-| Architecture rules | `bash .claude/skills/auxide-core/scripts/check-architecture.sh` |
-| UI rules | `bash .claude/skills/auxide-ui/scripts/check-ui.sh` |
+| Architecture rules | `bash scripts/check-architecture.sh` |
+| UI rules | `bash scripts/check-ui.sh` |
 
 The Rust code is written by hand; the Svelte UI is largely written with Claude Code. `CLAUDE.md` holds the rules both follow, and `.claude/` holds the tooling: skills (`auxide-core`, `auxide-ui`), review agents (`verifier`, `ui-reviewer`, `rust-reviewer`, `contract-reviewer`, `svelte-file-editor`) and workflows (`/review`, `/verify-feature <id>`, `/feature-ui <id>`, `/port-components <group>`).

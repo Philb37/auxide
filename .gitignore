@@ -19,8 +19,7 @@ cobertura.xml
 # ─────────────────────────────────────────────────────────────
 # WebAssembly (app-wasm via wasm-pack / wasm-bindgen-cli)
 # ─────────────────────────────────────────────────────────────
-crates/wasm/pkg/
-web/src/lib/wasm/generated/
+web/wasm-pkg/
 wasm-pack.log
 
 # ─────────────────────────────────────────────────────────────

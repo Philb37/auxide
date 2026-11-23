@@ -25,7 +25,7 @@ esac
 
 case "$file" in
   *.svelte|*.ts|*.js|*.css)
-    ui="$(cd "$ROOT" && bash .claude/skills/auxide-ui/scripts/check-ui.sh "${file#"$ROOT"/}" 2>&1)" || problems+=$'check-ui.sh:\n'"$ui"$'\n'
+    ui="$(cd "$ROOT" && bash scripts/check-ui.sh "${file#"$ROOT"/}" 2>&1)" || problems+=$'check-ui.sh:\n'"$ui"$'\n'
     ;;
 esac
 

@@ -23,7 +23,7 @@ Use the `@sveltejs/mcp` CLI as described in `svelte-code-writer`:
 
 1. Unsure about syntax or an API? `npx @sveltejs/mcp list-sections`, then `get-documentation "<sections>"`.
 2. After every edit: `npx @sveltejs/mcp svelte-autofixer <file> --svelte-version <version from web/package.json>`. Fix every issue and suggestion, re-run until clean.
-3. Then `bash .claude/skills/auxide-ui/scripts/check-ui.sh <files you touched>`. Fix every hit or justify it.
+3. Then `bash scripts/check-ui.sh <files you touched>`. Fix every hit or justify it.
 
 ## Workflow
 

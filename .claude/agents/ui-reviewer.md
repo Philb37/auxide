@@ -8,7 +8,7 @@ skills:
   - svelte-code-writer
 ---
 
-You review; you never edit, create or delete files. Bash is only for read-only commands: `git diff`, `git log`, `git show`, `grep`, `ls`, `npx @sveltejs/mcp svelte-autofixer <file>`, `bash .claude/skills/auxide-ui/scripts/check-ui.sh <files>`.
+You review; you never edit, create or delete files. Bash is only for read-only commands: `git diff`, `git log`, `git show`, `grep`, `ls`, `npx @sveltejs/mcp svelte-autofixer <file>`, `bash scripts/check-ui.sh <files>`.
 
 ## Input
 
@@ -20,7 +20,7 @@ A diff range or a list of changed files under `web/` (and `design-system/` if to
 2. **Library map** — interactive primitives use Bits UI, the phone sheet goes through `Sheet` (vaul-svelte), toasts through svelte-sonner, no unapproved dependency.
 3. **Design system** — tokens only (no literal colours, gradients, fonts), sizes and radii match the reference `.jsx` / card, motion limited to what `DESIGN-SYSTEM.md` defines and respects reduced motion.
 4. **NumberFlow rule** — app-computed amounts animate, user-entered ones do not, formatting identical to `Amount`.
-5. **Accessibility** — real `<button>`/`<a>`, labels on icon-only controls, state exposed, focus visible, keyboard path, tap targets ≥ 44px.
+5. **Accessibility** — WCAG 2.1 AA: every rule in `auxide-ui` → `references/accessibility.md` (structure and semantics, names labels and state, keyboard and focus, async states and messages, contrast colour and zoom, touch targets and motion). Cite the WCAG criterion with each finding; report a miss on a rule marked *project rule* as a project-rule failure, not an AA failure.
 6. **Copy** — in string files; voice rules (sentence case, middle dot, `€` prefix, true minus, no emoji); toasts/confirmations/empty states follow `DESIGN-SYSTEM.md` patterns.
 7. **No business logic** — no totals, splits, balances, period maths, rule matching or validation in Svelte/TS; everything comes from `AuxideApi`.
 8. **Svelte 5** — `svelte-core-bestpractices` (runes, `$derived` over `$effect`, keyed each, snippets, no legacy syntax). Run the autofixer on each changed `.svelte` file.

@@ -8,20 +8,28 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"scripts": {
-		"dev": "vite dev",
+		"wasm": "wasm-pack build ../crates/wasm --dev --target web --out-dir ../../web/wasm-pkg",
+		"wasm:ensure": "bash scripts/wasm-ensure.sh",
+		"dev": "pnpm run wasm && vite dev",
+		"prebuild": "pnpm run wasm:ensure",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
+		"precheck": "pnpm run wasm:ensure",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"precheck:watch": "pnpm run wasm:ensure",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"tauri": "cross-env TAURI_APP_PATH=../tauri-shell tauri",
+		"pretest:unit": "pnpm run wasm:ensure",
 		"test:unit": "vitest",
+		"pretest": "pnpm run wasm:ensure",
 		"test": "vitest run"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^4.0.1",
 		"@sveltejs/kit": "^3.0.0",
 		"@sveltejs/vite-plugin-svelte": "^7.2.0",
+		"@types/node": "^26.6.6",
 		"@vitest/browser-playwright": "^4.1.8",
 		"playwright": "^1.60.0",
 		"svelte": "^5.57.2",
@@ -32,11 +40,11 @@
 		"vitest-browser-svelte": "^2.1.1"
 	},
 	"dependencies": {
-		"auxide-wasm": "link:../crates/wasm/pkg"
+		"auxide-wasm": "link:./wasm-pkg"
 	},
-	"engines" : { 
-		"pnpm" : ">=12.2.1 <13.0.0",
-		"node" : ">=26.11.1 <27.0.0"
+	"engines": {
+		"pnpm": ">=12.2.1 <13.0.0",
+		"node": ">=26.11.1 <27.0.0"
 	},
 	"packageManager": "pnpm@12.2.1"
 }

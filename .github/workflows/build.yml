@@ -9,16 +9,12 @@ on:
       - '!**.md'
       - '!design-system/**'
       - '!.claude/**'
-      # Re-included: the guardrail scripts CI runs (F0.4a, F0.14).
-      - '.claude/skills/*/scripts/**'
   pull_request:
     paths:
       - '**'
       - '!**.md'
       - '!design-system/**'
       - '!.claude/**'
-      # Re-included: the guardrail scripts CI runs (F0.4a, F0.14).
-      - '.claude/skills/*/scripts/**'
     
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -78,22 +74,19 @@ jobs:
       - name: Cargo check
         run: cargo check -p auxide-core --target wasm32-unknown-unknown
       
-      - name: Core must stay clean of infrastructure dependencies
-        run: |
-          deps=$(cargo tree -p auxide-core -e normal --target all --prefix none -f '{p}')
-          if grep -E '^(wasm-bindgen|web-sys|js-sys|actix|diesel)' <<<"$deps"; then
-            echo "::error::auxide-core depends on a forbidden crate (see above)"
-            exit 1
-          fi
+      # Superset of the old inline `cargo tree` grep: dependency graph, infra crates and
+      # clock/random calls in core, Tauri commands, auxide-wasm imports in web/ (F0.14).
+      - name: Architecture rules
+        run: bash scripts/check-architecture.sh
 
       - name: Wasm build
-        run: wasm-pack build crates/wasm --release --target web --out-dir pkg
+        run: wasm-pack build crates/wasm --release --target web --out-dir ../../web/wasm-pkg
 
       - name: Upload Wasm package
         uses: actions/upload-artifact@v7
         with:
           name: wasm-pkg
-          path: crates/wasm/pkg/
+          path: web/wasm-pkg/
           if-no-files-found: error
           retention-days: 1
   
@@ -120,7 +113,7 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: wasm-pkg
-          path: crates/wasm/pkg/
+          path: web/wasm-pkg/
         
       - name: Install
         working-directory: web
@@ -129,6 +122,9 @@ jobs:
       - name: Check
         working-directory: web
         run: pnpm check
+
+      - name: UI rules
+        run: bash scripts/check-ui.sh
 
       - name: Install Playwright Chromium
         working-directory: web
